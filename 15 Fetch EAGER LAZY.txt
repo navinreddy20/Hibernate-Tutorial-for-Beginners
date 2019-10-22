@@ -1,0 +1,174 @@
+
+--------------------------------------------------------------------------------
+				   App.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+
+import java.util.Collection;
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.service.ServiceRegistryBuilder;
+
+public class App 
+{
+    public static void main( String[] args )
+    {
+        
+        Configuration config = new Configuration().configure().addAnnotatedClass(Laptop.class).addAnnotatedClass(Alien.class);    
+        SessionFactory sf = config.buildSessionFactory();   
+        Session session = sf.openSession();
+        
+        session.beginTransaction();
+        
+        Alien a1 = session.get(Alien.class, 1);
+        
+        System.out.println(a1.getAname());
+//        Collection<Laptop> laps = a1.getLaps();
+//        
+//        for(Laptop l : laps)
+//        {
+//        	System.out.println(l);
+//        }
+
+        session.getTransaction().commit();
+    }
+}
+
+
+--------------------------------------------------------------------------------
+				Laptop.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.ManyToOne;
+
+@Entity
+public class Laptop 
+{
+	@Id
+	private int lid;
+	private String brand;
+	private String price;
+	@ManyToOne
+	private Alien alien;
+	
+	public int getLid() {
+		return lid;
+	}
+	public void setLid(int lid) {
+		this.lid = lid;
+	}
+	public String getBrand() {
+		return brand;
+	}
+	public void setBrand(String brand) {
+		this.brand = brand;
+	}
+	public String getPrice() {
+		return price;
+	}
+	public void setPrice(String price) {
+		this.price = price;
+	}
+	public Alien getAlien() {
+		return alien;
+	}
+	public void setAlien(Alien alien) {
+		this.alien = alien;
+	}
+	
+
+	
+	
+}
+
+--------------------------------------------------------------------------------
+				Alien.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+
+@Entity
+public class Alien 
+{
+	@Id
+	private int aid;
+	private String aname;
+	
+	@OneToMany(mappedBy = "alien",fetch=FetchType.EAGER)
+	private Collection<Laptop> laps = new ArrayList<Laptop>();
+	
+	
+	public Collection<Laptop> getLaps() {
+		return laps;
+	}
+	public void setLaps(Collection<Laptop> laps) {
+		this.laps = laps;
+	}
+	public int getAid() {
+		return aid;
+	}
+	public void setAid(int aid) {
+		this.aid = aid;
+	}
+	public String getAname() {
+		return aname;
+	}
+	public void setAname(String aname) {
+		this.aname = aname;
+	}
+	
+	@Override
+	public String toString() {
+		return "Alien [aid=" + aid + ", aname=" + aname + " ]";
+	}
+	
+			
+}
+
+
+
+--------------------------------------------------------------------------------
+			     hibernate.cfg.xml
+--------------------------------------------------------------------------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">1234</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/test</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hbm2ddl.auto">create</property>
+        <property name="show_sql">true</property>
+    </session-factory>
+</hibernate-configuration>

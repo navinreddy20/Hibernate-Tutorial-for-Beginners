@@ -1,0 +1,199 @@
+
+--------------------------------------------------------------------------------
+				   App.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+import java.util.List;
+import java.util.Random;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.service.ServiceRegistryBuilder;
+
+public class App 
+{
+    public static void main( String[] args )
+    {
+        Configuration config = new Configuration().configure().addAnnotatedClass(Student.class);    
+        ServiceRegistry registry = new ServiceRegistryBuilder().applySettings(config.getProperties()).buildServiceRegistry();
+        SessionFactory sf = config.buildSessionFactory(registry);   
+        Session session = sf.openSession();
+        
+        session.beginTransaction();
+        
+//        Query q = session.createQuery("from Student");     //(Fetch all student data)
+//          Query q = session.createQuery("from Student where marks > 50");      //(it show only that record where marks will be greater than 50)
+          
+//        List<Student> students = q.list();
+        
+        Query q = session.createQuery("from Student where rollno=7");
+        Student student = (Student) q.uniqueResult();
+        
+        System.out.println(student);
+        
+        
+//        for(Student s : students)
+//        {
+//        	System.out.println(s);
+//        }
+//        
+//        Random r = new Random();
+//        
+//        
+//        for(int i=1;i<=50;i++)
+//        {
+//        	Student s = new Student();
+//        	s.setRollno(i);
+//        	s.setName("Name" + i);
+//        	s.setMarks(r.nextInt(100));
+//        	session.save(s);
+//        }
+  
+        session.getTransaction().commit();
+
+    }
+
+}
+
+
+--------------------------------------------------------------------------------
+				Student.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+
+import javax.persistence.Entity;
+import javax.persistence.Id;
+
+
+@Entity
+public class Student 
+{
+	@Id
+	private int rollno;
+	private String name;
+	private int marks;
+
+	
+	public int getRollno() {
+		return rollno;
+	}
+	public void setRollno(int rollno) {
+		this.rollno = rollno;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public int getMarks() {
+		return marks;
+	}
+	public void setMarks(int marks) {
+		this.marks = marks;
+	}
+
+	
+	@Override
+	public String toString() {
+		return "Student [rollno=" + rollno + ", name=" + name + ", marks=" + marks + "]";
+	}
+	
+	
+}
+
+
+
+
+--------------------------------------------------------------------------------
+			     hibernate.cfg.xml
+--------------------------------------------------------------------------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:5432/postgres</property>
+        <property name="hibernate.connection.username">postgres</property>
+        <property name="hibernate.connection.password">navin123</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</property>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="show_sql">true</property>
+    </session-factory>
+</hibernate-configuration>
+
+--------------------------------------------------------------------------------
+			        pom.xml
+--------------------------------------------------------------------------------
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.telusko</groupId>
+  <artifactId>DemoHib</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>DemoHib</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>4.1.6.Final</version>
+</dependency>
+
+<dependency>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache</artifactId>
+    <version>2.10.3</version>
+</dependency>
+
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-ehcache</artifactId>
+    <version>4.1.6.Final</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>5.1.47</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <version>42.2.6</version>
+</dependency>
+
+
+    
+  </dependencies>
+</project>

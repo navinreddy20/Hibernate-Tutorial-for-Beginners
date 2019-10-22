@@ -1,0 +1,168 @@
+--------------------------------------------------------------------------------
+				   App.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.service.ServiceRegistryBuilder;
+
+/**
+ * Hello world!
+ *
+ */
+public class App 
+{
+    public static void main( String[] args )
+    {
+    	AlienName an = new AlienName();
+    	an.setFname("NavinKumarReady");
+    	an.setLname("Thatipalli");
+    	an.setMname("BapReddy");
+    	
+        Alien telusko = new Alien();
+        telusko.setAid(101);
+        telusko.setColor("Green");
+        telusko.setAname(an);
+        
+        Configuration con = new Configuration().configure().addAnnotatedClass(Alien.class);
+        
+        ServiceRegistry reg = new ServiceRegistryBuilder().applySettings(con.getProperties()).buildServiceRegistry();
+        
+        SessionFactory sf = con.buildSessionFactory();
+        
+        Session session = sf.openSession();
+        
+        Transaction tx = session.beginTransaction();
+        
+       session.save(telusko);
+        
+        tx.commit();
+        
+        System.out.println(telusko);
+    }
+}
+
+
+
+--------------------------------------------------------------------------------
+				 Alien.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+@Entity
+@Table(name="alien_table")
+public class Alien 
+{
+	@Id
+	private int aid;
+	private AlienName aname;
+	private String color;
+	
+	public int getAid() {
+		return aid;
+	}
+	public void setAid(int aid) {
+		this.aid = aid;
+	}
+	public AlienName getAname() {
+		return aname;
+	}
+	public void setAname(AlienName aname) {
+		this.aname = aname;
+	}
+	public String getColor() {
+		return color;
+	}
+	public void setColor(String color) {
+		this.color = color;
+	}
+	
+	@Override
+	public String toString() {
+		return "Alien [aid=" + aid + ", aname=" + aname + ", color=" + color + "]";
+	}
+	
+	
+	
+	
+}
+
+
+
+--------------------------------------------------------------------------------
+			     hibernate.cfg.xml
+--------------------------------------------------------------------------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">1234</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/neon</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hbm2ddl.auto">create</property>
+        <property name="show_sql">true</property>
+    </session-factory>
+</hibernate-configuration>
+
+--------------------------------------------------------------------------------
+			     AlienName.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+import javax.persistence.Embeddable;
+
+@Embeddable
+public class AlienName 
+{
+	private String fname;
+	private String lname;
+	private String mname;
+	
+	
+	public String getFname() {
+		return fname;
+	}
+	public void setFname(String fname) {
+		this.fname = fname;
+	}
+	public String getLname() {
+		return lname;
+	}
+	public void setLname(String lname) {
+		this.lname = lname;
+	}
+	public String getMname() {
+		return mname;
+	}
+	public void setMname(String mname) {
+		this.mname = mname;
+	}
+	
+	@Override
+	public String toString() {
+		return "AlienName [fname=" + fname + ", lname=" + lname + ", mname=" + mname + "]";
+	}
+	
+	
+	
+	
+}

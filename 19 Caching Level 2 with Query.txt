@@ -1,0 +1,201 @@
+
+--------------------------------------------------------------------------------
+				   App.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+
+import java.util.Collection;
+
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.service.ServiceRegistry;
+import org.hibernate.service.ServiceRegistryBuilder;
+
+public class App 
+{
+    public static void main( String[] args )
+    {
+    	Alien a = null;
+        
+        Configuration con = new Configuration().configure().addAnnotatedClass(Alien.class);    
+        ServiceRegistry reg = new ServiceRegistryBuilder().applySettings(con.getProperties()).buildServiceRegistry();
+        SessionFactory sf = con.buildSessionFactory(reg);   
+        Session session1 = sf.openSession();
+        session1.beginTransaction();
+  
+        Query q1 = session1.createQuery("from Alien where aid=101");
+        q1.setCacheable(true);
+        a = (Alien) q1.uniqueResult();
+        System.out.println(a);
+        
+        
+        session1.getTransaction().commit();
+        session1.close();
+        
+        Session session2 = sf.openSession();
+        session2.beginTransaction();
+        
+        Query q2 = session2.createQuery("from Alien where aid=101");
+        q2.setCacheable(true);
+        a = (Alien) q2.uniqueResult();
+        System.out.println(a);
+        
+        session2.getTransaction().commit();
+        session2.close();
+        
+
+
+    }
+}
+
+
+--------------------------------------------------------------------------------
+				Alien.java
+--------------------------------------------------------------------------------
+
+package com.telusko.DemoHib;
+
+import java.util.ArrayList;
+import java.util.Collection;
+
+import javax.persistence.Cacheable;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
+import javax.persistence.Transient;
+
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+
+@Entity
+@Table(name="alien_table")
+@Cacheable
+@Cache(usage=CacheConcurrencyStrategy.READ_ONLY)
+public class Alien 
+{
+	@Id
+	private int aid;
+	private String aname;
+	private String color;
+	public int getAid() {
+		return aid;
+	}
+	public void setAid(int aid) {
+		this.aid = aid;
+	}
+	public String getAname() {
+		return aname;
+	}
+	public void setAname(String aname) {
+		this.aname = aname;
+	}
+	public String getColor() {
+		return color;
+	}
+	public void setColor(String color) {
+		this.color = color;
+	}
+	
+	@Override
+	public String toString() {
+		return "Alien [aid=" + aid + ", aname=" + aname + ", color=" + color + "]";
+	}
+	
+
+	
+			
+}
+
+
+
+
+
+--------------------------------------------------------------------------------
+			     hibernate.cfg.xml
+--------------------------------------------------------------------------------
+
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <property name="hibernate.connection.driver_class">com.mysql.jdbc.Driver</property>
+        <property name="hibernate.connection.password">1234</property>
+        <property name="hibernate.connection.url">jdbc:mysql://localhost:3306/neon</property>
+        <property name="hibernate.connection.username">root</property>
+        <property name="hibernate.dialect">org.hibernate.dialect.MySQLDialect</property>
+        <property name="hbm2ddl.auto">update</property>
+        <property name="show_sql">true</property>
+        <property name="hibernate.cache.use_second_level_cache">true</property>
+        <property name="hibernate.cache.region.factory_class">org.hibernate.cache.ehcache.EhCacheRegionFactory</property>
+        <property name="hibernate.cache.use_query_cache">true</property>
+    </session-factory>
+</hibernate-configuration>
+
+--------------------------------------------------------------------------------
+			        pom.xml
+--------------------------------------------------------------------------------
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>com.telusko</groupId>
+  <artifactId>DemoHib</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+
+  <name>DemoHib</name>
+  <url>http://maven.apache.org</url>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>3.8.1</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core -->
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-core</artifactId>
+    <version>4.1.6.Final</version>
+</dependency>
+
+<dependency>
+    <groupId>net.sf.ehcache</groupId>
+    <artifactId>ehcache</artifactId>
+    <version>2.10.3</version>
+</dependency>
+
+<dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-ehcache</artifactId>
+    <version>4.1.6.Final</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/mysql/mysql-connector-java -->
+<dependency>
+    <groupId>mysql</groupId>
+    <artifactId>mysql-connector-java</artifactId>
+    <version>5.1.47</version>
+</dependency>
+
+    
+  </dependencies>
+</project>
